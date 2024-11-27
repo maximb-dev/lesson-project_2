@@ -304,7 +304,7 @@ btnClose.addEventListener('click',function(e){
   inputCloseUsername.value = '';
   if(!correctLogin && !correctPin)
   {
-    alert('Лол кек чебурек');
+    return alert('Лол кек чебурек');
   }
   else{
     const currentAccountIndex = accounts.findIndex(account => account.nickName === currentAccount.nickName);
