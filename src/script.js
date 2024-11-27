@@ -122,21 +122,18 @@ function formateTransactionDate(date,locale){
     const daysPasted = getDaysBetween2Dates(new Date, date);
     console.log(daysPasted);
 
-    if(daysPasted === 0)
-    {
-      return 'Сегодня';
-    }
-    else if(daysPasted === 1)
-    {
-      return 'Вчера';
-    }
-    else if(daysPasted <= 7)
-    {
-      return `${daysPasted} дней назад!`;
-    }
-    else{
-      return new Intl.DateTimeFormat(locale).format(date);
-    }
+  const daysAgo = {
+    0: 'Сегодня',
+    1: 'Вчера'
+  };
+
+  if (daysPasted in daysAgo) {
+    return daysAgo[daysPasted];
+  } else if (daysPasted <= 7) {
+    return `${daysPasted} дней назад!`;
+  } else {
+    return new Intl.DateTimeFormat(locale).format(date);
+  }
 }
 
 function formatCurrency(value, locale,currency){
@@ -197,14 +194,15 @@ function displayTotal(account)
   const widthrawTotal = account.transactions.filter(trans => trans < 0).reduce((acc,trans) => acc + trans, 0);
   labelSumOut.textContent = formatCurrency(widthrawTotal,account.locale, account.currency);
 
-  const interestTotal = account.transactions
-  .filter(trans => trans > 0)
-  .map(depos =>(depos*account.interest) / 100)
-  .filter((interest,index,arr) => {
-    console.log(arr);
-    return interest >= 5;
-  })
-  .reduce((acc,interest) => acc + interest, 0);
+  const interestTotal = account.transactions.reduce((acc, trans) => {
+    if (trans > 0) {
+      const interest = (trans * account.interest) / 100;
+      if (interest >= 5) {
+        return acc + interest;
+      }
+    }
+    return acc;
+  }, 0);
 
   labelSumInterest.textContent = formatCurrency(interestTotal,account.locale, account.currency);
 }
@@ -304,16 +302,16 @@ btnClose.addEventListener('click',function(e){
   const correctPin = currentAccount.pin === +(inputClosePin.value);
   inputClosePin.value = '';
   inputCloseUsername.value = '';
-  if(correctLogin && correctPin)
+  if(!correctLogin && !correctPin)
   {
+    alert('Лол кек чебурек');
+  }
+  else{
     const currentAccountIndex = accounts.findIndex(account => account.nickName === currentAccount.nickName);
     accounts.splice(currentAccountIndex, 1);
     containerApp.style.opacity = 0;
     labelWelcome.textContent = `Войдите в свой аккаунт`;
     console.log(accounts);
-  }
-  else{
-    alert('Лол кек чебурек');
   }
 })
 
